@@ -4,6 +4,10 @@ Diagnostics on Socket CAN
 ## Aim
 The aim of this project is to build a library which makes OBD2 and UDS interface easier
 
+## State of Project
+
+Still getting the basics spun up.  Stay tuned.
+
 ## Why SocketCan
 SocketCan treats the CAN bus as a first class citizen.  USB CAN adapters or native CAN interfaces on SoC provides a more seamless experience than ELM (or similar) interface chips.
 
@@ -22,10 +26,6 @@ Other adapaters may work these are just suggested
 OBD2 - Protocol required by emissions, may also be used for simple datalogging
 
 UDS - More advanced diagnostic protocol, not required but commonly used
-
-## State of Project
-
-Still getting the basics spun up.  Stay tuned.
 
 ## License
 
