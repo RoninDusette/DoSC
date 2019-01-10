@@ -20,12 +20,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         can.cpp\
-        dosc.cpp
+        dosc.cpp \
+    isotp.cpp \
+    isotpsession.cpp \
+    resettabletimer.cpp
 
 HEADERS += \
         can.h \
         dosc.h \
-        dosc_global.h
+        dosc_global.h \
+    isotp.h \
+    isotpsession.h \
+    resettabletimer.h
 
 unix {
     target.path = /usr/lib
