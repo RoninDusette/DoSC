@@ -6,13 +6,15 @@
 #include "dosc_global.h"
 
 #include "can.h"
+#include "isotp.h"
 
 #define DOSC_OK 0
 
 class DOSCSHARED_EXPORT DoSC
 {
 private:
-    can m_can;
+    tSharedCan m_pCan;
+    IsoTp m_isoTp;
 
 protected:
 

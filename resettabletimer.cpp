@@ -1,6 +1,11 @@
 #include "resettabletimer.h"
 
-#define DEFAULT_TIMEOUT_MS 500
+#define DEFAULT_TIMEOUT_MS 1000
+
+bool ResettableTimer::IsTimedOut()
+{
+    return m_timedOut;
+}
 
 void ResettableTimer::RunTimer()
 {
@@ -14,16 +19,22 @@ void ResettableTimer::RunTimer()
             break;
         }
     }
+
+    if (m_timerCallback != nullptr && m_running == true)
+    {
+        m_timerCallback();
+    }
+    m_timedOut = true;
 }
 
 void ResettableTimer::Start()
 {
     if (m_running == true || m_thread.joinable())
     {
-        m_running = false;
         Stop();
     }
 
+    m_timedOut = false;
     m_running = true;
     m_thread = std::thread(&ResettableTimer::RunTimer, this);
 }
@@ -55,6 +66,8 @@ void ResettableTimer::SetCallback(tTimerCb callback)
 
 ResettableTimer::ResettableTimer()
 {
+    m_running = false;
+    m_timedOut = true;
     m_timeout = std::chrono::milliseconds(DEFAULT_TIMEOUT_MS);
     m_timerCallback = nullptr;
 }

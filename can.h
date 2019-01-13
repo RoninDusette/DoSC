@@ -55,4 +55,6 @@ public:
     ~can();
 };
 
+typedef std::shared_ptr<can> tSharedCan;
+
 #endif // CAN_H

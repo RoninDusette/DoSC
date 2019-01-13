@@ -15,31 +15,35 @@ void PrintCanFrame(tCanFrame &frame)
 void DoSC::CanRxCb(tCanFrame &frame)
 {
     PrintCanFrame(frame);
+    m_isoTp.IngestFrame(frame);
 }
 
 void DoSC::SendCanFrame(tCanFrame &frame)
 {
-    m_can.SendCanFrame(frame);
+    m_pCan->SendCanFrame(frame);
 }
 
 int DoSC::StartCan(std::string &interface)
 {
-    m_can.AssignInterface(interface);
-    m_can.StartCan();
+    m_pCan->AssignInterface(interface);
+    m_pCan->StartCan();
 
     return DOSC_OK;
 }
 
 void DoSC::StopCan()
 {
-    m_can.StopCan();
-    m_can.UnassignInterface();
+    m_pCan->StopCan();
+    m_pCan->UnassignInterface();
 }
 
 DoSC::DoSC()
 {
     tCanRxCb callback = std::bind(&DoSC::CanRxCb, this, std::placeholders::_1);
-    m_can.SetRxCb(callback);
+    m_pCan = std::make_shared<can>();
+    m_pCan->SetRxCb(callback);
+
+    m_isoTp.SetCan(m_pCan);
 }
 
 DoSC::~DoSC()

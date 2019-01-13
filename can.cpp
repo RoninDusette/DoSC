@@ -40,7 +40,7 @@ void can::RunCanRx()
                 frame.id = cFrame.can_id;
                 frame.size = cFrame.can_dlc;
                 std::copy(&cFrame.data[0],
-                          &cFrame.data[frame.size-1],
+                          &cFrame.data[frame.size],
                           frame.data.begin());
                 m_rxCb(frame);
             }

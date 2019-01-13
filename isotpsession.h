@@ -32,6 +32,7 @@ private:
     uint32_t m_currentIndex;
     ResettableTimer m_timer;
     tTpMsg m_msg;
+    tSharedCan m_pCan;
 
     tSessionStatus m_status;
 
@@ -46,13 +47,18 @@ private:
     void ProcessConsec(tCanFrame &frame);
     void ProcessFlow(tCanFrame &frame);
 
-    void SendFlow(uint8_t flag);
+    void SendFlow(uint8_t flag, tCanFrame &frame);
 
 protected:
 
 public:
+    bool IsTimedOut();
     void AddSessionData(tCanFrame &frame);
 
+    void SetTimeoutCb(tSessionTimeoutCb &cb);
+    void SetFinishedCb(tSessionFinishedCb &cb);
+
+    void SetCan(tSharedCan pCan);
     IsoTpSession(uint32_t id);
 };
 

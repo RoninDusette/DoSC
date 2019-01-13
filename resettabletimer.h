@@ -17,6 +17,7 @@ private:
     std::mutex m_resetMutex;
     std::chrono::milliseconds m_timeout;
 
+    std::atomic<bool> m_timedOut;
     std::atomic<bool> m_running;
     std::thread m_thread;
 
@@ -31,6 +32,8 @@ public:
     void Stop();
 
     void Reset();
+
+    bool IsTimedOut();
 
     void SetTimeout(std::chrono::milliseconds timeout);
     void SetCallback(tTimerCb callback);

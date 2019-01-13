@@ -9,7 +9,7 @@
 #define FIRST_SIZE  1
 #define CONSEC_DATA 1
 #define SINGLE_SIZE 0
-#define START_INDEX 0x0
+#define START_INDEX 0x1
 #define MAX_INDEX   0xF
 
 #define FLOW_CONT   0
@@ -25,9 +25,48 @@
 
 #define EMPTY_SIZE 0
 
-void IsoTpSession::SendFlow(uint8_t flag)
+uint32_t ReverseId(uint32_t id)
 {
-    (void)flag;
+    uint32_t txId;
+
+    if (id > 0x7E0 && id < 0x7E8)
+    {
+        return id += 0x008;
+    }
+    else if (id >= 0x7E8 && id < 0x7F0)
+    {
+        return  id -= 0x008;
+    }
+    else if ((id & 0x18DA0000) == 0x18DA0000)
+    {
+        txId = 0x18DA0000;
+        txId |= uint32_t(id & 0x0000FF00) >> 8;
+        txId |= uint32_t(id & 0x000000FF) << 8;
+        return txId;
+    }
+
+    return 0x0;
+}
+
+void IsoTpSession::SendFlow(uint8_t flag, tCanFrame &frame)
+{
+    tCanFrame flowFrame;
+
+    flowFrame.id = ReverseId(frame.id);
+    if (flowFrame.id == 0x0)
+    {
+        return;
+    }
+
+    flowFrame.size = 8;
+    flowFrame.data[0] = 0x30 | flag;
+
+    m_pCan->SendCanFrame(flowFrame);
+}
+
+bool IsoTpSession::IsTimedOut()
+{
+    return m_timer.IsTimedOut();
 }
 
 void IsoTpSession::SessionTimeout()
@@ -42,7 +81,7 @@ void IsoTpSession::ProcessFirst(tCanFrame &frame)
 {
     if (frame.size < LOW_MIN)
     {
-        SendFlow(FLOW_ABRT);
+        SendFlow(FLOW_ABRT, frame);
         return;
     }
 
@@ -65,7 +104,7 @@ void IsoTpSession::ProcessFirst(tCanFrame &frame)
     m_status = INPROGRESS;
     m_currentIndex = START_INDEX;
 
-    SendFlow(FLOW_CONT);
+    SendFlow(FLOW_CONT, frame);
 }
 
 void IsoTpSession::ProcessConsec(tCanFrame &frame)
@@ -95,6 +134,7 @@ void IsoTpSession::ProcessConsec(tCanFrame &frame)
 
     if (m_msg.data.size() >= m_finalSize)
     {
+        m_timer.Stop();
         m_finishedCb(m_msg);
         m_status = DONE;
         return;
@@ -176,6 +216,21 @@ void IsoTpSession::AddSessionData(tCanFrame &frame)
     }
 }
 
+void IsoTpSession::SetTimeoutCb(tSessionTimeoutCb &cb)
+{
+    m_timeoutCb = cb;
+}
+
+void IsoTpSession::SetFinishedCb(tSessionFinishedCb &cb)
+{
+    m_finishedCb = cb;
+}
+
+void IsoTpSession::SetCan(tSharedCan pCan)
+{
+    m_pCan = pCan;
+}
+
 IsoTpSession::IsoTpSession(uint32_t id)
 {
     m_id = id;
@@ -186,5 +241,4 @@ IsoTpSession::IsoTpSession(uint32_t id)
     m_finishedCb = nullptr;
 
     m_timer.SetCallback(std::bind(&IsoTpSession::SessionTimeout, this));
-    m_timer.Start();
 }
