@@ -53,6 +53,11 @@ void IsoTp::SessionFinished(tTpMsg msg)
     printf("IsoTpSession with %x finished with %ld bytes of data\n",
            msg.id,
            msg.data.size());
+
+    if (m_finishedCb != nullptr)
+    {
+        m_finishedCb(msg);
+    }
 }
 
 void IsoTp::SetCan(tSharedCan pCan)
@@ -60,7 +65,12 @@ void IsoTp::SetCan(tSharedCan pCan)
     m_pCan = pCan;
 }
 
+void IsoTp::SetFinishedCb(tFinishedCb &cb)
+{
+    m_finishedCb = cb;
+}
+
 IsoTp::IsoTp()
 {
-
+    m_finishedCb = nullptr;
 }

@@ -10,23 +10,38 @@
 
 #define DOSC_OK 0
 
+typedef std::map<uint32_t, std::string> tResultStringMap;
+
+typedef std::function<void(tTpMsg &)> tProcCall;
+typedef std::map<uint8_t, tProcCall> tCodeProcMap;
+
 class DOSCSHARED_EXPORT DoSC
 {
 private:
     tSharedCan m_pCan;
     IsoTp m_isoTp;
 
-protected:
+    std::mutex m_codeFuncMutex;
+    tCodeProcMap m_codeFunc;
 
+protected:
+    void ProcessOb2Name(tResultStringMap *pMap, tTpMsg msg);
+
+    void RegisterCodeFunc(uint8_t code, tProcCall call);
+    void CallCodeFunc(uint8_t code, tTpMsg &msg);
+
+    void IsoTpFinishedCb(tTpMsg &msg);
 public:
+    DoSC();
+    ~DoSC();
+
     int StartCan(std::string &interface);
     void StopCan();
 
     void CanRxCb(tCanFrame &frame);
     void SendCanFrame(tCanFrame &frame);
 
-    DoSC();
-    ~DoSC();
+    void Obd2GetName(uint32_t id, tResultStringMap &map);
 };
 
 #endif // DOSC_H

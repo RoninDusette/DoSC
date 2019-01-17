@@ -12,6 +12,47 @@ void PrintCanFrame(tCanFrame &frame)
     printf("\n");
 }
 
+void DoSC::RegisterCodeFunc(uint8_t code, tProcCall call)
+{
+    std::unique_lock<std::mutex> codeFuncLock(m_codeFuncMutex);
+
+    tCodeProcMap::iterator it = m_codeFunc.find(code);
+    if (call == nullptr)
+    {
+        if (it != m_codeFunc.end())
+        {
+            m_codeFunc.erase(it);
+        }
+    }
+    else
+    {
+        if (it != m_codeFunc.end())
+        {
+            it->second = call;
+        }
+        else
+        {
+            m_codeFunc[code] = call;
+        }
+    }
+}
+
+void DoSC::CallCodeFunc(uint8_t code, tTpMsg &msg)
+{
+    std::unique_lock<std::mutex> codeFuncLock(m_codeFuncMutex);
+
+    tCodeProcMap::iterator it = m_codeFunc.find(code);
+    if (it != m_codeFunc.end())
+    {
+        it->second(msg);
+    }
+}
+
+void DoSC::IsoTpFinishedCb(tTpMsg &msg)
+{
+    CallCodeFunc(msg.data[0], msg);
+}
+
 void DoSC::CanRxCb(tCanFrame &frame)
 {
     PrintCanFrame(frame);
@@ -42,6 +83,10 @@ DoSC::DoSC()
     tCanRxCb callback = std::bind(&DoSC::CanRxCb, this, std::placeholders::_1);
     m_pCan = std::make_shared<can>();
     m_pCan->SetRxCb(callback);
+
+    tFinishedCb isoFinished = std::bind(&DoSC::IsoTpFinishedCb, this,
+                                        std::placeholders::_1);
+    m_isoTp.SetFinishedCb(isoFinished);
 
     m_isoTp.SetCan(m_pCan);
 }

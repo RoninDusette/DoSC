@@ -23,7 +23,8 @@ SOURCES += \
         dosc.cpp \
     isotp.cpp \
     isotpsession.cpp \
-    resettabletimer.cpp
+    resettabletimer.cpp \
+    dosc_obd2.cpp
 
 HEADERS += \
         can.h \
