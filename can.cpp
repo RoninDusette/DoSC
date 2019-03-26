@@ -11,6 +11,9 @@
 
 #include "can.h"
 
+#define TIMEOUT 0
+#define CAN_ERR -1
+
 void can::RunCanRx()
 {
     struct can_frame cFrame;
@@ -19,17 +22,21 @@ void can::RunCanRx()
     ssize_t retval;
     struct timeval timeout;
 
-    FD_SET(m_socket, &selectSet);
-
     while (m_running == true)
     {
+        FD_ZERO(&selectSet);
+        FD_SET(m_socket, &selectSet);
         timeout.tv_sec = m_timeoutS;
         timeout.tv_usec = m_timeoutUs;
         retval = select(m_socket+1, &selectSet, nullptr, nullptr, &timeout);
-        if (retval == -1)
+        if (retval == CAN_ERR)
         {
             perror("Select failed\n");
             return;
+        }
+        else if (retval == TIMEOUT)
+        {
+            continue;
         }
 
         if (FD_ISSET(m_socket, &selectSet))
