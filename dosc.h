@@ -10,7 +10,7 @@
 
 #define DOSC_OK 0
 
-typedef std::map<uint32_t, std::string> tResultStringMap;
+typedef std::map<uint32_t, std::vector<std::string>> tResultStringMap;
 
 typedef std::function<void(tTpMsg &)> tProcCall;
 typedef std::map<uint8_t, tProcCall> tCodeProcMap;
@@ -26,6 +26,7 @@ private:
 
 protected:
     void ProcessOb2Name(tResultStringMap *pMap, tTpMsg msg);
+    void ProcessObd2Faults(tResultStringMap *pMap, tTpMsg msg);
 
     void RegisterCodeFunc(uint8_t code, tProcCall call);
     void CallCodeFunc(uint8_t code, tTpMsg &msg);
@@ -42,6 +43,8 @@ public:
     void SendCanFrame(tCanFrame &frame);
 
     void Obd2GetName(uint32_t id, tResultStringMap &map);
+    void Obd2GetFaults(uint32_t id, tResultStringMap &map);
+    void Obd2ClearFaults(uint32_t id, tResultStringMap &map);
 };
 
 #endif // DOSC_H

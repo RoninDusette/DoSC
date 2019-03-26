@@ -130,14 +130,14 @@ void IsoTpSession::ProcessConsec(tCanFrame &frame)
     for (size_t i = CONSEC_DATA; i < frame.size; i++)
     {
         m_msg.data.push_back(frame.data[i]);
-    }
 
-    if (m_msg.data.size() >= m_finalSize)
-    {
-        m_timer.Stop();
-        m_finishedCb(m_msg);
-        m_status = DONE;
-        return;
+        if (m_msg.data.size() >= m_finalSize)
+        {
+            m_timer.Stop();
+            m_finishedCb(m_msg);
+            m_status = DONE;
+            return;
+        }
     }
 
     m_timer.Reset();
