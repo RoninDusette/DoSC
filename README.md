@@ -6,7 +6,15 @@ The aim of this project is to build a library which makes OBD2 and UDS interface
 
 ## State of Project
 
-Still getting the basics spun up.  Stay tuned.
+The project is young, running up against a goofy ECU sim so currently working on getting a production ECU on a bench.  Untested against actual vehicles so proceed with caution.  Usage example exists in a local project currently.  Either that or an end user consumable project will be uploaded soon.
+
+#### OBD2:
+- Read ECU Names
+- Read ECU Faults
+- Clear ECU Faults
+
+##### UDS:
+Undeveloped beyond ISO-TP support
 
 ## Why SocketCan
 SocketCan treats the CAN bus as a first class citizen.  USB CAN adapters or native CAN interfaces on SoC provides a more seamless experience than ELM (or similar) interface chips.
